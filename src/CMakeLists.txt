@@ -16,6 +16,9 @@ set(SOURCES
     executor.cpp
     executor.h
     thread_pool_executor.cpp
+    task_envelope.cpp
+    token_bucket_executor.cpp
+    token_bucket_queue.cpp
 )
 
 add_library(TokenBucketExecutor.lib ${SOURCES})

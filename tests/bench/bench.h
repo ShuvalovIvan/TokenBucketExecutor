@@ -35,5 +35,5 @@ namespace tbe {
     }
     
     BENCHMARK(BM_ThreadPoolExecutor)->Range(1, 24);
-    BENCHMARK_MAIN();
+    
 }

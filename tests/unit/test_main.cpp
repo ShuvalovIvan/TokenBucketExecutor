@@ -2,6 +2,7 @@
 
 #include "executor.h"
 #include "thread_pool_executor.h"
+#include "token_bucket_executor.h"
 #include "../common/test_task.h"
 
 namespace tbe {
@@ -79,12 +80,32 @@ namespace tbe {
         static constexpr int N = 5;
         auto latch = std::make_shared<std::latch>(N);
         ThreadPoolExecutor executor{6};
-        TaskProperties properties = {"test_user"};
 
         for (int i = 0; i < N; ++i) {
+            TaskProperties properties = {"test_user"};
             executor.exec(TestTask::get(latch), std::move(properties));
         }
         latch->wait();
+        SUCCEED();
+    }
+
+    class TokenBucketExecutorTest : public ::testing::Test {
+    protected:
+        TokenBucketExecutor executor{6}; 
+    };
+
+
+    TEST_F(TokenBucketExecutorTest, ExecutesTaskNTimes) {
+        static constexpr int N = 5;
+        auto latch = std::make_shared<std::latch>(N);
+
+        for (int i = 0; i < N; ++i) {
+            TaskProperties properties = {"test_user"};
+            executor.exec(TestTask::get(latch), std::move(properties));
+        }
+        std::cerr << "Wait for completion" << std::endl;
+        latch->wait();
+        executor.terminate();
         SUCCEED();
     }
 

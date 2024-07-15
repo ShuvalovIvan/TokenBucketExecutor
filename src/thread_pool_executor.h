@@ -1,5 +1,6 @@
 #pragma once
 #include <thread_pool/thread_pool.h>
+#include <stddef.h>
 #include "executor.h"
 
 
@@ -7,7 +8,7 @@ namespace tbe {
 
     class ThreadPoolExecutor : public Executor {
     public:
-        ThreadPoolExecutor(size_t numThreads = 4) : pool(numThreads) {}
+        ThreadPoolExecutor(std::size_t numThreads = 4) : pool(numThreads) {}
 
         ExecutorError exec(Task&& task, TaskProperties&& properties) override {
             try {
