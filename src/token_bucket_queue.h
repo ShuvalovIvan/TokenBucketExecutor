@@ -17,11 +17,12 @@ namespace tbe {
         std::mutex m_Mutex;
         std::condition_variable m_cv;
         const int m_QueueSize;
+        std::atomic_bool m_bFinished;
 
 
     public:
         TokenBucketQueue(int MaxQueue = 10) 
-            : m_QueueSize(MaxQueue) 
+            : m_bFinished(false), m_QueueSize(MaxQueue) 
         {}
 
         void push(Task&& task, TaskProperties&& properties)
@@ -37,12 +38,24 @@ namespace tbe {
         {
             std::unique_lock<std::mutex> lock(m_Mutex);
             do {
-                m_cv.wait(lock, [&](){ return !m_data.empty(); }); // predicate an while loop - protection from spurious wakeups
+                m_cv.wait(lock, [&](){ 
+                    return !m_data.empty() || m_bFinished; 
+                }); // predicate an while loop - protection from spurious wakeups
+                if (m_bFinished) {
+                    return TaskEnvelope([]{}, {});
+                }
             } while (m_data.empty());
             auto envelope = m_data.front();
             m_data.pop();
             std::cerr << "Popped, q size " << m_data.size() << std::endl;
             return envelope;
+        }
+
+        void terminate()
+        {
+            std::unique_lock<std::mutex> lock(m_Mutex);
+            m_bFinished = true;
+            m_cv.notify_all();
         }
     };
 }

@@ -13,6 +13,7 @@ namespace tbe {
         std::atomic<bool> termination_flag;
     public:
         TokenBucketExecutor(std::size_t size);
+        ~TokenBucketExecutor() override;
         ExecutorError exec(Task&& task, TaskProperties&& properties) override;
         void terminate();
     };

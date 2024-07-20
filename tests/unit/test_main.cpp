@@ -105,6 +105,7 @@ namespace tbe {
         }
         std::cerr << "Wait for completion" << std::endl;
         latch->wait();
+        std::cerr << "Terminate" << std::endl;
         executor.terminate();
         SUCCEED();
     }
